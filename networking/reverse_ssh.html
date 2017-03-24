@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<title>SSH</title>
+	<script src="../resources/angular.min.js"></script>
+	<script src="networking.js"></script>
+</head>
+
+<body ng-app="mainApp" ng-controller="mainCtrl">
+
+	<a href="../">Regresar a Raíz</a>
+
+	<h1>Túneles SSH</h1>
+	<p>
+	Rodolfo ha habilitado un usuario en un servidor (ip: {{server.ip}})
+	para poder trabajar remotamente en nuestras máquinas.<br>
+	</p>
+
+	<h2>Antes de todo: Llaves públicas</h2>
+
+	<p>
+	Primero dale tus llaves públicas a Rodolfo
+	para que te de de alta en su servidor. 
+	Dale la llave de tu máquina en la oficina y la de tu casa.
+	Tendrás que seguir estas instrucciones para la máquina de tu oficina y la de tu casa.
+	</p>
+
+	<p>
+	Para conocer la llave pública de una máquina linux, haz:<br>
+	<code>cat ~/.ssh/id_rsa.pub</code><br>
+	mándale esa cosa a Rodolfo, debería de ser un string de la forma:<br>
+	<code>ssh-rsa llave_publica_gigante usuario@host</code>
+	</p>
+
+	<p>
+	Si el comando falla, seguramente no tienes una llave, se puede generar así:<br>
+	<code>ssh-keygen -t rsa -b 4096</code><br>
+	estas opciones generan una llave RSA de 4096 bits, tendrás que escoger un passphrase,
+	deja que las llaves se guarden en los archivos que ya vienen por defecto.
+	</p>
+
+	<h2>Instrucciones</h2>
+
+	<p>
+	Estas instrucciones tienen valores que cambian, ¿quién eres? <br>
+	<select ng-model="member" ng-options="option.name for option in team"></select>
+	</p>
+
+	<p>
+	Tu computadora ya tiene un crontab para automatizar la creación de un tunel SSH,
+	así que el siguiente comando debería de funcionar:<br>
+	<code>
+		ssh {{member.server}}@{{server.ip}}<br>
+		ssh -p {{member.port}} {{member.office}}@localhost<br>
+	</code>
+	estos dos commandos te conectan al servidor de Rodolfo y luego a la oficina 
+	(ciertos puertos del servidor están mapeados al puerto 22 de nuestras máquinas).
+	</p>
+
+	<p>
+	La lista de puertos asignados la puedes encontrar <a href="#ports">aquí</a>. 
+	Por favor no uses puertos que no te corresponden.
+	</p>
+
+
+	<h2>Puertos asignados</h2>
+
+	<table id="ports">
+		<tr>
+			<th>Nombre</th>
+			<th>Puerto</th>
+			<th>Usuario</th>
+		</tr>
+		<tr ng-repeat="dude in team">
+			<td>{{dude.name}}</td>
+			<td>{{dude.port}}</td>
+			<td>{{dude.server}}</td>
+		</tr>
+	</table>
+
+	<h2>Fuentes</h2>
+
+	<ul>
+		<li>
+			<a href="http://unix.stackexchange.com/questions/46235/how-does-reverse-ssh-tunneling-work">
+				Explicación gráfica de túneles SSH.
+			</a>
+		</li>
+		<li>
+			<a href="http://www.linuxquestions.org/questions/linux-networking-3/transferring-files-via-reverse-ssh-857863/">
+				Abrir un túnel directo.
+			</a>
+		</li>
+	</ul>
+
+</body>
