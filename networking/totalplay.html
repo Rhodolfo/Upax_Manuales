@@ -13,13 +13,10 @@
 		la conexión va según el siguiente esquema:
 	</p>
 	<p>
-		Router Totalplay &gt; Servidorcito &gt; Switch &gt; Cluster de Máquinas Linux
+		Router Totalplay &gt; Switch &gt; Cluster de Máquinas Linux
 	</p>
 	<p>
-		Para facilidad de trabajo, queremos fijar las IPs en la red interna, 
-		pero vamos a tener que esperar hasta que tengamos una conexión directa al router
-		para lograr eso. De todos modos voy a compilar las direcciones MAC de cada quién 
-		y sus IPs de ahora.
+		Para facilidad de trabajo, fije las IPs de la red interna.
 	</p>
 
 	<h2>Red de TotalPlay</h2>
@@ -44,6 +41,14 @@
 			<td>Contraseña de Red</td>
 			<td>79135821azteca</td>
 		</tr>
+		<tr>
+			<td>Nombre de Red 2</td>
+			<td>UPAXwifi2</td>
+		</tr>
+		<tr>
+			<td>Contraseña de Red 2</td>
+			<td>servidorcito</td>
+		</tr>
 	</table>
 
 	<h2>Datos de ordenadores</h2>
@@ -66,48 +71,46 @@
 			<td>rodo</td>
 			<td>Rodolfo</td>
 			<td>6c:0b:84:0c:f2:95</td>
-			<td>-</td>
+			<td>192.168.100.170</td>
 			<td>Ethernet</td>
 		</tr>
 		<tr>
-			<td>McLuvin</td>
-			<td>Uriel</td>
+			<td>ubaldo</td>
+			<td>Ubaldo</td>
 			<td>6c:0b:84:0c:f2:7c</td>
-			<td>-</td>
+			<td>192.168.100.171</td>
 			<td>Ethernet</td>
 		</tr>
 		<tr>
-			<td>BigDaddy</td>
-			<td>Pablo</td>
-			<td>6c:0b:84:0c:f0:33</td>
-			<td>-</td>
+			<td>jorge</td>
+			<td>Jorge</td>
+			<td>6c:0b:84:0c:f2:5e</td>
+			<td>192.168.100.172</td>
 			<td>Ethernet</td>
 		</tr>
 		<tr>
 			<td>jm</td>
 			<td>JM</td>
 			<td>6c:0b:84:0c:f2:ad</td>
-			<td>-</td>
+			<td>192.168.100.173</td>
 			<td>Ethernet</td>
-		</tr>
-		<tr>
-			<td>-</td>
-			<td>Marco</td>
-			<td>-</td>
-			<td>-</td>
-			<td>-</td>
 		</tr>
 		<tr>
 			<td>ara</td>
 			<td>Araceli</td>
 			<td>6c:0b:84:0c:f0:33</td>
-			<td>-</td>
+			<td>192.168.100.174</td>
 			<td>Ethernet</td>
+		</tr>
+		<tr>
+			<td>jdavid</td>
+			<td>Jorge David</td>
+			<td>d0:df:9a:d8:66:d4</td>
+			<td>192.168.100.175</td>
+			<td>Wi-fi</td>
 		</tr>
 	</table>
 	<p>
 	IPs de la forma 192.168.100.x son asignadas por el router de Totalplay, 10.42.0.x son asignadas por servidorcito.
-	Servidorcito tiene IPs fijas, una fijada por su MAC por el router de Totalplay, la otra es 10.42.0.1 y funge como
-	gateway para asignar las IPs del cluster de máquinas Linux.
 	</p>
 </body>
