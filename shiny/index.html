@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<title>shiny-server</title>
+</head>
+
+<body>
+	<h1>
+		Instalación Segura de shiny-server en CentOS
+	</h1>
+
+	<h2> 
+		Motivación y Resumen de Metodología
+	</h2>
+	<p>
+		La finalidad de este documento es instalar shiny-server en un servidor de tal manera que:
+	</p>
+	<ul> 
+		<li>
+			Solamente ciertos usuarios tengan acceso a la aplicación. 
+		</li>
+		</li>
+			Solamente ciertas IPs tengan acceso a la aplicación.
+		</li>
+		<li>
+			La información entre usuario y servidor esté encriptada.
+		</li>
+	</ul>
+	<p>
+		debido a estas condiciones, la instalación por defecto de shiny-server no es adecuada. 
+		Shiny por defecto responde a todas las máquinas y no encripta información.
+	</p>
+	<p>
+		Para lograr las metas anteriores vamos a pedirle a shiny-server que no responda a máquinas externas,
+		y aparte vamos a poner un firewall para que no lleguen solicitudes de información a shiny-server en primer lugar.
+	</p>
+	<p> 
+		Como shiny-server no va a responder solicitudes que no provengan de la misma máquina donde esta instalado,
+		vamos a usar a nginx como un proxy para mandar la información al usuario.
+		nginx es un software de manejo de servidor como Apache que permite manejar 
+		http (páginas web), encriptación, y proxy entre otras cosas.
+	</p>
+	<p>
+		Adicionalmente, las reglas de firewall quedarán tales que rechazarán
+		conecciones que no vengan del puerto HTTPS y de las IPs permitidas.
+	</p>
+	<p>
+		Finalmente la configuración de red va a quedar como sigue:
+	</p>
+		<code>
+			Cliente --> Firewall --> nginx --> shiny-server
+		</code>
+	<p>
+		El usuario (cliente) tendrá que pasar por el firewall y nginx para poder ver la aplicación:
+	</p>
+	<ul>
+		<li>
+			El firewall se encarga de rechazar conexiones no encriptadas y de IPs desconocidas,
+			además de recharazar conexiones que traten de comunicarse con shiny-server directamente.
+		</li>
+		<li>
+			nginx se encarga de validar el nombre y la contraseña del usuario, 
+			adicionalmente se encarga de encriptar la conexión con el cliente
+			y de mostrar la aplicación shiny.
+		</li>
+	</ul>
+	</p>
+	<p>
+		Voy a suponer que la instalación de CentOS es minimalista (servidor). 
+		Este documento esta dividido en secciones:
+	</p>
+	<ol> 
+		<li>
+			Instalación y configuración de nginx
+		</li>
+		<li>
+			Encriptación TLS/SSL (HTTPS)
+		</li>
+		<li>
+			Instalación y configuración de R y shiny-server
+		</li>
+		<li>
+			Instalación y configuración del firewall por medio de ufw
+		</li>
+	</ol>
+
+
+
+	<h2>
+		Instalación del firewall (ufw)
+	</h2>
+	<p>
+		A mi no me gusta el firewall original de CentOS, prefiero ufw por su simplicidad,
+	</p>
+	<pre><code>sudo systemctl stop firewalld
+sudo systemctl disable firewalld
+sudo yum update
+sudo yum install -y ufw
+sudo systemctl enable ufw
+sudo systemctl start ufw</code></pre>
+	<p>
+		Tal vez tengas que añadir un repositorio adicional si ufw no se encuentra en los repositorios,
+	</p>
+	<pre><code>wget http://download.opensuse.org/repositories/home:zhonghuaren/Fedora_23/home:zhonghuaren.repo
+sudo yum install -y ufw</code></pre>
+	<p>
+		Por ahora vamos a permitir conexiones HTTP/S desde cualquier IP, 
+		además vamos a permitir conexiones SSH para administrar el servidor,
+		permitiremos otras conexiones temporalmente,
+	</p>
+	<pre><code>sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw default allow
+</pre></code>
+	<p>
+		La configuración final del firewall se hace después de las pruebas de nginx y shiny-server.
+	</p>
+
+
+
+	<h2> 
+		Instalación y configuración de nginx
+	</h2>
+	<p>
+		Se empieza por la instalación de paquetes adicionales para linux, 
+		luego unas herramientas adicionales y luego nginx,
+	</p>
+	<pre><code>sudo yum update
+sudo yum install -y epel-release
+sudo yum install -y httpd-tools
+sudo yum install nginx
+sudo systemctl enable nginx </code></pre>
+	<p>
+		Vamos a permitir que nginx inicie automáticamente
+	</p>
+	<code>
+	
+	
+
+
+
+</body>
