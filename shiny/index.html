@@ -1,143 +1,208 @@
 <!DOCTYPE html>
 <head>
 	<meta charset="UTF-8">
-	<title>shiny-server</title>
+	<title>
+		Instalación Segura de shiny-server en CentOS
+	</title>
 </head>
 
 <body>
-	<h1>
-		Instalación Segura de shiny-server en CentOS
-	</h1>
 
-	<h2> 
-		Motivación y Resumen de Metodología
-	</h2>
-	<p>
-		La finalidad de este documento es instalar shiny-server en un servidor de tal manera que:
-	</p>
-	<ul> 
-		<li>
-			Solamente ciertos usuarios tengan acceso a la aplicación. 
-		</li>
-		</li>
-			Solamente ciertas IPs tengan acceso a la aplicación.
-		</li>
-		<li>
-			La información entre usuario y servidor esté encriptada.
-		</li>
-	</ul>
-	<p>
-		debido a estas condiciones, la instalación por defecto de shiny-server no es adecuada. 
+<article>
+
+	<section>
+		<h1> Motivación y Resumen de Metodología</h1>
+		<p>La finalidad de este documento es instalar shiny-server en un servidor de tal manera que:</p>
+		<ul> 
+			<li>Solamente ciertos usuarios tengan acceso a la aplicación. </li>
+			<li>Solamente ciertas IPs tengan acceso a la aplicación.</li>
+			<li>La información entre usuario y servidor esté encriptada.</li>
+		</ul>
+		<p>
+		Debido a estas condiciones, la instalación por defecto de shiny-server no es adecuada. 
 		Shiny por defecto responde a todas las máquinas y no encripta información.
-	</p>
-	<p>
+		</p>
+		<p>
 		Para lograr las metas anteriores vamos a pedirle a shiny-server que no responda a máquinas externas,
 		y aparte vamos a poner un firewall para que no lleguen solicitudes de información a shiny-server en primer lugar.
-	</p>
-	<p> 
+		</p>
+		<p> 
 		Como shiny-server no va a responder solicitudes que no provengan de la misma máquina donde esta instalado,
 		vamos a usar a nginx como un proxy para mandar la información al usuario.
 		nginx es un software de manejo de servidor como Apache que permite manejar 
 		http (páginas web), encriptación, y proxy entre otras cosas.
-	</p>
-	<p>
+		</p>
+		<p>
 		Adicionalmente, las reglas de firewall quedarán tales que rechazarán
 		conecciones que no vengan del puerto HTTPS y de las IPs permitidas.
-	</p>
-	<p>
+		</p>
+		<p>
 		Finalmente la configuración de red va a quedar como sigue:
-	</p>
+		</p>
 		<code>
 			Cliente --> Firewall --> nginx --> shiny-server
 		</code>
-	<p>
+		<p>
 		El usuario (cliente) tendrá que pasar por el firewall y nginx para poder ver la aplicación:
-	</p>
-	<ul>
-		<li>
+		</p>
+		<ul>
+			<li>
 			El firewall se encarga de rechazar conexiones no encriptadas y de IPs desconocidas,
 			además de recharazar conexiones que traten de comunicarse con shiny-server directamente.
-		</li>
-		<li>
+			</li>
+			<li>
 			nginx se encarga de validar el nombre y la contraseña del usuario, 
 			adicionalmente se encarga de encriptar la conexión con el cliente
 			y de mostrar la aplicación shiny.
-		</li>
-	</ul>
-	</p>
-	<p>
+			</li>
+		</ul>
+		<p>
 		Voy a suponer que la instalación de CentOS es minimalista (servidor). 
 		Este documento esta dividido en secciones:
-	</p>
-	<ol> 
-		<li>
-			Instalación y configuración de nginx
-		</li>
-		<li>
-			Encriptación TLS/SSL (HTTPS)
-		</li>
-		<li>
-			Instalación y configuración de R y shiny-server
-		</li>
-		<li>
-			Instalación y configuración del firewall por medio de ufw
-		</li>
-	</ol>
+		</p>
+		<ol> 
+			<li>Instalación y configuración de nginx</li>
+			<li>Encriptación TLS/SSL (HTTPS)</li>
+			<li>Instalación y configuración de R y shiny-server</li>
+			<li>Instalación y configuración del firewall por medio de ufw</li>
+		</ol>
+	</section>
 
-
-
-	<h2>
-		Instalación del firewall (ufw)
-	</h2>
-	<p>
-		A mi no me gusta el firewall original de CentOS, prefiero ufw por su simplicidad,
-	</p>
-	<pre><code>sudo systemctl stop firewalld
+	<section>
+		<h1>Instalación del firewall (ufw)</h1>
+		<p>A mi no me gusta el firewall original de CentOS, prefiero ufw por su simplicidad,</p>
+		<pre><code>sudo systemctl stop firewalld
 sudo systemctl disable firewalld
 sudo yum update
 sudo yum install -y ufw
 sudo systemctl enable ufw
 sudo systemctl start ufw</code></pre>
-	<p>
-		Tal vez tengas que añadir un repositorio adicional si ufw no se encuentra en los repositorios,
-	</p>
-	<pre><code>wget http://download.opensuse.org/repositories/home:zhonghuaren/Fedora_23/home:zhonghuaren.repo
+		<p>Tal vez tengas que añadir un repositorio adicional si ufw no se encuentra en los repositorios,</p>
+<pre><code>wget http://download.opensuse.org/repositories/home:zhonghuaren/Fedora_23/home:zhonghuaren.repo
 sudo yum install -y ufw</code></pre>
-	<p>
+		<p>
 		Por ahora vamos a permitir conexiones HTTP/S desde cualquier IP, 
 		además vamos a permitir conexiones SSH para administrar el servidor,
 		permitiremos otras conexiones temporalmente,
-	</p>
-	<pre><code>sudo ufw allow ssh
+		</p>
+		<pre><code>sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow https
-sudo ufw default allow
-</pre></code>
-	<p>
-		La configuración final del firewall se hace después de las pruebas de nginx y shiny-server.
-	</p>
+sudo ufw default allow</code></pre>
+		<p>La configuración final del firewall se hace después de las pruebas de nginx y shiny-server.</p>
+	</section>
 
-
-
-	<h2> 
-		Instalación y configuración de nginx
-	</h2>
-	<p>
+	<section>
+		<h1>Instalación de nginx</h1>
+		<p>
 		Se empieza por la instalación de paquetes adicionales para linux, 
-		luego unas herramientas adicionales y luego nginx,
-	</p>
-	<pre><code>sudo yum update
+		luego unas herramientas adicionales y luego nginx, 
+		finalmente se registra a nginx como servicio para que inicie automáticamente,
+		</p>
+		<pre><code>sudo yum update
 sudo yum install -y epel-release
 sudo yum install -y httpd-tools
 sudo yum install nginx
 sudo systemctl enable nginx </code></pre>
-	<p>
-		Vamos a permitir que nginx inicie automáticamente
-	</p>
-	<code>
-	
-	
+		<p>
+		nginx debería de estar corriendo y sirviendo una página web por defecto. 
+		Esto se puede verificar ingresando la IP del servidor en un navegador. 
+		Si la página no aparece, verifica que estes en la misma red que el servidor 
+		y que el firewall no esté bloqueando el puerto 80 (HTTP).
+		</p>
+	</section>
 
+	<section>
+		<h1>Instalación de R y shiny-server</h1>
+		<p>
+		Uno podría seguir configurando nginx, 
+		pero para poder probar toda nuestra configuración necesitamos de shiny-server.
+		Lo bueno es que epel-release tiene R dentro de los paquetes disponibles,
+		</p>
+		<pre><code>sudo yum install R
+sudo yum install openssl-devel
+sudo yum install libcurl-devel</pre></code>
+		<p>Entra a R como superusuario <code>sudo R</code></p>
+		<pre><code>install.packages('shiny', repos='https://cran.rstudio.com/')
+install.packages('rmarkdown', repos='https://cran.rstudio.com/')</code></pre>
+		<p>Tal vez tengas que quitar el https de la dirección del repositorio.</p>
+		<p>Vas a necesitar el rpm de shiny-server distribuido por rstudio:</p>
+		<a href="https://www.rstudio.com/products/shiny/download-server/">
+			https://www.rstudio.com/products/shiny/download-server/
+		</a>
+		<p>Escoge RedHat/CentOS como tu sistema e instala el rpm como lo indica el sitio, 
+		tal vez tengas que registrar a shiny-server como servicio e iniciarlo manualmente,
+		</p>
+		<pre><code>sudo systemctl enable shiny-server
+sudo systemctl start shiny-server</pre></code>
+		<p>
+		Si todo ha salido bien, deberías de ver la página por defecto de shiny-server
+		bajo <code>http://ip_de_tu_servidor:3838</code> y nada más. 
+		Si no la ves, checa si tu máquina está en la misma red que el servidor
+		y que el puerto no esté bloqueado por firewalls.
+		</p>
+	</section>
 
+	<section>
+		<h1>Encriptación SSL/TLS en nginx</h1>
+		<p>
+		En nuestro caso, necesitamos que la aplicación encripte todo el tráfico que pase por el puerto 443 (HTTPS),
+		este será el canal encriptado por donde podremos mostrar una aplicación shiny con contenido sensible.
+		</p>
+		<p>
+		Primero vamos a generar una llave privada y un certificado (autofirmado) para el servidor,
+		a mí me gusta guardarlos bajo <code>/etc/nginx/ssl</code>,
+		</p>
+		<pre><code>sudo mkdir /etc/nginx/ssl
+openssl restoofcommandhere</code></pre>
+		<p>
+		Si requieres un certificado validado por una autoridad de certificación yo recomiendo Let's Encrypt,
+		pero aquí me voy a restringir a certificados autofirmados.
+		</p>
+		<p>Luego le pedimos al servidor que active la encriptación SSL en el puerto 443,
+		esto lo podemos hacer por medio de la hoja de configuración localizada en <code>/etc/nginx/nginx.conf</code>,</p>
+		<p><iframe src="nginx1.conf" class="configframe"></iframe></p>
+		<p>Reinicia nginx,</p>
+		<code>sudo systemctl restart nginx</code>
+		<p>
+		Si no hay quejas, deberías de ver una página encriptada en <code>https://ip_de_tu_servidor</code>. 
+		Toma en cuenta de que tu certificado es autofirmado, la mayoría de los navegadores van a aventar un aviso.
+		Si nginx no inicia de nuevo, debes de tener algún error en tu hoja de configuración.
+		Buena suerte si ese es el caso.
+		</p>
+	</section>
 
+	<section>
+		<h1>Redirección a una Aplicación Shiny con Usuario y Contraseña</h1>
+		<p>
+		Ya sé que todavía no tenemos un shiny montado, 
+		pero se puede ir haciendo la configuración para apuntar el servidor a una aplicación en shiny.
+		Escoge un puerto no ocupado, vamos a decir el <b>42069</b> por ejemplo. 
+		No uses el 3838, ese es el puerto que shiny utiliza por defecto y por seguridad no queremos ese puerto 
+		y lo vamos a usar para pruebas de todos modos.
+		</p>
+		<p>Primero vamos a generar un archivo que guarde usuarios y hashes de contraseñas,
+		a mi me gusta tener estos archivos dentro de <code>/etc/nginx/.htpasswd</code>
+		</p>
+		<code>sudo htpasswd -c /etc/nginx/.htpasswd rodolfo</code>
+		<p>
+		Esta instrucción generará un archivo con el usuario rodolfo y un hash de su contraseña,
+		quita el <code>-c</code> para registrar nuevos usuarios,
+		</p>
+		<code>sudo htpasswd /etc/nginx/.htpasswd marco</code>
+		<p>Ya con un control de usuarios vamos a abrir dos proxys, uno para la aplicación que queremos montar 
+		y otro para la página de prueba de shiny,
+		</p>
+		<p><iframe src="nginx2.conf" class="configframe"></iframe></p>
+		<p>Reinicia nginx,</p>
+		<code>sudo systemctl restart nginx</code>
+		<p>
+		Puedes ingresar a 	
+		<code>https://ip_de_tu_servidor/auditoria/</code>
+		para comprobar que esa dirección está protegida con usuario y contraseña. 
+		Por ahora no podrás comprobar nada más, se necesita instalar shiny-server.
+		</p>
+	</section>
+
+</article>
 </body>
