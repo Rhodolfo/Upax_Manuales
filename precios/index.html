@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<title>
+		Instalación Segura de shiny-server en CentOS
+	</title>
+</head>
+
+<body>
+
+<h1>Scripts y Datos</h1>
+
+<p>Primero vas a necesitar los siguientes scripts, pónlos en cualquier carpeta del sistema que tiene la plataforma de precios:</p>
+<ul>
+	<li><a href="./usuarios.csv" download>usuarios.csv</a></li>
+	<li><a href="./pathConfig.php" download>pathConfig.php</a></li>
+	<li><a href="./generatePassword.php" download>generatePassword.php</a></li>
+	<li><a href="./newUsers.php" download>newUsers.php</a></li>
+	<li><a href="./registerUsers.php" download>registerUsers.php</a></li>
+</ul>
+<p>El .csv sólo es una muestra, llena este archivo con los datos de tus usuarios.</p>
+
+
+
+<h1>Pasos a Seguir</h1>
+
+<ol>
+	<li>Edita pathConfig.php para que la carpeta $precios_path apunte a la carpeta raíz de la plataforma de precios.</li>
+	<li>El archivo usuarios.csv debe de tener los datos de los usuarios en formato "nombre,apellido paterno, apellido materno, email."</li>
+	<li>Corre la instrucción <code>php newUsers.php > usuarios_pass.csv</code>, esto generará contraseñas para los usuarios y te avisará si estos ya estaban registrados en el sistema de precios, elimina los usuarios ya registrados de usuarios_pass.csv (busca las palabras MAIL o USER).</li>
+	<li>Corre el último script <code>php registerUsers.php</code> para registrar a los usarios en la base de datos.</li>
+</ol>
+
+</body>
