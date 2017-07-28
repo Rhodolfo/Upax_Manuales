@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<title>UPAX</title>
+</head>
+
+<body>
+
+<p>Primero corres <a href="https://github.com/twobrosonecode/Scrap_201608_Profeco">el programa de escrapeo de profeco,</a></p>
+<code>$ sbt</code>
+<br>
+<code>> run</code>
+<p>Copia los scripts auxiliares a la carpeta de datos y entra a la carpeta de datos,</p>
+<code>$ cp src/main/resources/* data/</code>
+<br>
+<code>$ cd data/</code>
+<p>Corre el script de preparación de datos. Una vez finalizado, entra a la base MySQL donde quieres guardar tus datos,</p>
+<code>$ perl sql_prepare.pl</code>
+<br>
+<code>$ mysql --host=metronhomo.com.mx --user=metrooya_user metrooya_profeco_todo -p</code>
+<p>Desde aquí corre los scripts sql, uno escribe los registros a la base total de profeco, el otro filtra resultados a la base filtrada de profeco a productos de interés de Dante,</p>
+<code>> source sql_fill.sql;</code>
+<br>
+<code>> source sql_filter.sql;</code>
+
+</body>
